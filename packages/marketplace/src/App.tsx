@@ -26,6 +26,30 @@ function toHttpUri(uri: string) {
   return /^https?:\/\//i.test(uri) ? uri : null;
 }
 
+async function getLogsChunked(
+  provider: ethers.Provider,
+  params: {
+    address: string;
+    topics?: Array<string | Array<string> | null>;
+    fromBlock: number;
+    toBlock: number;
+  },
+  chunkSize = 10
+) {
+  const out: ethers.Log[] = [];
+  for (let start = params.fromBlock; start <= params.toBlock; start += chunkSize) {
+    const end = Math.min(params.toBlock, start + chunkSize - 1);
+    const part = await provider.getLogs({
+      address: params.address,
+      topics: params.topics,
+      fromBlock: start,
+      toBlock: end,
+    });
+    out.push(...part);
+  }
+  return out;
+}
+
 export default function App() {
   const [account, setAccount] = useState<string | null>(null);
   const [status, setStatus] = useState<string>("");
@@ -81,16 +105,35 @@ export default function App() {
     try {
       setStatus("Loading agents…");
       const latest = await provider.getBlockNumber();
-      const fromBlock = Math.max(0, latest - 5000);
+      const LOOKBACK = 5000;
+      const fromBlock = Math.max(0, latest - LOOKBACK);
+      const toBlock = latest;
 
       const reg = sdk.registry;
-      const evs1 = await reg.queryFilter(reg.filters.AgentRegistered(), fromBlock, latest);
-      const evs2 = await reg.queryFilter(reg.filters.AgentUpdated(), fromBlock, latest);
+      const registeredTopic = reg.interface.getEvent("AgentRegistered")?.topicHash;
+      const updatedTopic = reg.interface.getEvent("AgentUpdated")?.topicHash;
+      const firstTopics = [registeredTopic, updatedTopic].filter(Boolean) as string[];
+      if (firstTopics.length === 0) {
+        throw new Error("Missing AgentRegistry event topics");
+      }
+      const topics = [firstTopics];
+      const logs = await getLogsChunked(
+        provider,
+        {
+          address: CONFIG.registry,
+          fromBlock,
+          toBlock,
+          topics,
+        },
+        10
+      );
 
       const map = new Map<string, any>();
 
-      for (const e of [...evs1, ...evs2]) {
-        const agent = (e as any).args.agent as string;
+      for (const log of logs) {
+        const parsed = reg.interface.parseLog(log);
+        const agent = parsed?.args?.agent as string | undefined;
+        if (!agent) continue;
         const data = await sdk.getAgent(agent as any);
         map.set(agent, {
           agent,
@@ -152,14 +195,30 @@ export default function App() {
   async function loadTaskHistory() {
     try {
       const latest = await provider.getBlockNumber();
-      const fromBlock = Math.max(0, latest - 10000);
-      const evs = await sdk.escrow.queryFilter(sdk.escrow.filters.TaskCreated(), fromBlock, latest);
+      const LOOKBACK = 5000;
+      const fromBlock = Math.max(0, latest - LOOKBACK);
+      const toBlock = latest;
+      const createdTopic = sdk.escrow.interface.getEvent("TaskCreated")?.topicHash;
+      if (!createdTopic) {
+        throw new Error("Missing TaskEscrow.TaskCreated topic");
+      }
+      const logs = await getLogsChunked(
+        provider,
+        {
+          address: CONFIG.escrow,
+          fromBlock,
+          toBlock,
+          topics: [[createdTopic]],
+        },
+        10
+      );
 
       const rows = await Promise.all(
-        evs.map(async (ev: any) => {
-          const id = BigInt(ev.args.taskId);
+        logs.map(async (log) => {
+          const parsed = sdk.escrow.interface.parseLog(log);
+          const id = BigInt((parsed?.args?.taskId as bigint | number | string) ?? 0);
           const t = await sdk.getTask(id as any);
-          const block = await provider.getBlock(ev.blockNumber);
+          const block = await provider.getBlock(log.blockNumber);
           return {
             id,
             client: t.client as string,
@@ -311,7 +370,7 @@ export default function App() {
 
   return (
     <div style={{ maxWidth: 980, margin: "40px auto", fontFamily: "ui-sans-serif, system-ui" }}>
-      <h1 style={{ marginBottom: 8 }}>AgentPay Marketplace (local)</h1>
+      <h1 style={{ marginBottom: 8 }}>AgentPay Marketplace (chain {CONFIG.chainId})</h1>
       <div style={{ opacity: 0.8, marginBottom: 16 }}>
         Chain {CONFIG.chainId} · Escrow {short(CONFIG.escrow)} · Registry {short(CONFIG.registry)}
       </div>
