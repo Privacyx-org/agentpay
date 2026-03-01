@@ -90,7 +90,7 @@ export default function App() {
       const map = new Map<string, any>();
 
       for (const e of [...evs1, ...evs2]) {
-        const agent = e.args.agent as string;
+        const agent = (e as any).args.agent as string;
         const data = await sdk.getAgent(agent as any);
         map.set(agent, {
           agent,
@@ -172,7 +172,7 @@ export default function App() {
         })
       );
 
-      rows.sort((a, b) => Number(b.id - a.id));
+      rows.sort((a: any, b: any) => Number(b.id - a.id));
       setTaskHistory(rows);
     } catch (e: any) {
       console.error(e);
