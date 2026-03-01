@@ -81,6 +81,32 @@ export default function App() {
     });
   }, [provider, signer]);
 
+  const isLocal = CONFIG.chainId === 31337;
+
+  async function connectMetaMask(
+    setter: (s: ethers.Signer) => void,
+    setAddr: (a: string) => void
+  ) {
+    if (!(window as any).ethereum) throw new Error("MetaMask not found");
+
+    const browserProvider = new ethers.BrowserProvider((window as any).ethereum);
+    await browserProvider.send("eth_requestAccounts", []);
+
+    const network = await browserProvider.getNetwork();
+    const chainId = Number(network.chainId);
+
+    if (chainId !== CONFIG.chainId) {
+      throw new Error(`Wrong network: please switch MetaMask to chainId ${CONFIG.chainId}`);
+    }
+
+    const mmSigner = await browserProvider.getSigner();
+    const addr = await mmSigner.getAddress();
+    setter(mmSigner);
+    setAddr(addr);
+    setPayout(addr);
+    setStatus(`Connected ${short(addr)}`);
+  }
+
   async function connectHardhatAccount(index = 1) {
     setError("");
     const keys = [
@@ -99,6 +125,30 @@ export default function App() {
     setAccount(addr);
     setPayout(addr);
     setStatus(`Connected ${short(addr)}`);
+  }
+
+  async function connectClient() {
+    setError("");
+    try {
+      if (isLocal) return await connectHardhatAccount(1);
+      return await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+    } catch (e: any) {
+      console.error(e);
+      setError(e?.shortMessage || e?.message || String(e));
+      setStatus("❌ Failed to connect client");
+    }
+  }
+
+  async function connectAgent() {
+    setError("");
+    try {
+      if (isLocal) return await connectHardhatAccount(2);
+      return await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+    } catch (e: any) {
+      console.error(e);
+      setError(e?.shortMessage || e?.message || String(e));
+      setStatus("❌ Failed to connect agent");
+    }
   }
 
   async function loadAgents() {
@@ -377,8 +427,8 @@ export default function App() {
 
       <div style={{ padding: 14, border: "1px solid #eee", borderRadius: 12, marginBottom: 16 }}>
         <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-          <button onClick={() => connectHardhatAccount(1)}>Connect Client (Acct1)</button>
-          <button onClick={() => connectHardhatAccount(2)}>Connect Agent (Acct2)</button>
+          <button onClick={connectClient}>Connect Client (Acct1)</button>
+          <button onClick={connectAgent}>Connect Agent (Acct2)</button>
           <div>{account ? `Connected: ${short(account)}` : "Not connected"}</div>
         </div>
         <div style={{ marginTop: 10, color: "#555" }}>{status}</div>
