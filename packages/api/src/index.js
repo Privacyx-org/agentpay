@@ -1,12 +1,21 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { ethers } from "ethers";
 
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
+
+const limiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
 
 const { ATTESTOR_PRIVATE_KEY, PORT } = process.env;
 if (!ATTESTOR_PRIVATE_KEY) {
@@ -34,6 +43,52 @@ function computeResultHash(result) {
 
 app.get("/health", (req, res) => {
   res.json({ ok: true, attestor: wallet.address });
+});
+
+app.post("/mint", async (req, res) => {
+  try {
+    const apiKey = req.header("x-api-key");
+    if (!process.env.MINT_API_KEY || apiKey !== process.env.MINT_API_KEY) {
+      return res.status(401).json({ ok: false, error: "unauthorized" });
+    }
+
+    const { to, amount } = req.body || {};
+    if (!to || !ethers.isAddress(to)) {
+      return res.status(400).json({ ok: false, error: "invalid_to" });
+    }
+
+    const human = String(amount ?? "1000");
+    if (!/^\d+(\.\d+)?$/.test(human)) {
+      return res.status(400).json({ ok: false, error: "invalid_amount" });
+    }
+
+    const rpc = process.env.RPC_URL;
+    const usdc = process.env.USDC_ADDRESS;
+    const pk = process.env.MINTER_PRIVATE_KEY;
+
+    if (!rpc || !usdc || !pk) {
+      return res.status(500).json({ ok: false, error: "missing_env" });
+    }
+
+    const provider = new ethers.JsonRpcProvider(rpc);
+    const minter = new ethers.Wallet(pk, provider);
+
+    const abi = [
+      "function mint(address to, uint256 amount) external",
+      "function decimals() view returns (uint8)",
+    ];
+
+    const c = new ethers.Contract(usdc, abi, minter);
+    const dec = await c.decimals();
+    const amt = ethers.parseUnits(human, dec);
+
+    const tx = await c.mint(to, amt);
+    await tx.wait();
+
+    res.json({ ok: true, txHash: tx.hash, to, amount: human, usdc });
+  } catch (e) {
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
 });
 
 app.post("/attest", async (req, res) => {
