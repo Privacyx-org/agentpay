@@ -45,6 +45,16 @@ app.get("/health", (req, res) => {
   res.json({ ok: true, attestor: wallet.address });
 });
 
+app.get("/config", async (req, res) => {
+  res.json({
+    ok: true,
+    chainId: Number(process.env.CHAIN_ID || 0),
+    rpc: process.env.RPC_URL ? "set" : "missing",
+    usdc: process.env.USDC_ADDRESS || null,
+    attestor: wallet.address,
+  });
+});
+
 app.post("/mint", async (req, res) => {
   try {
     const apiKey = req.header("x-api-key");
