@@ -24,6 +24,17 @@ const mintLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+const MINT_COOLDOWN_SECONDS = Number(process.env.MINT_COOLDOWN_SECONDS || 600);
+const mintCooldownByAddress = new Map();
+
+function isCoolingDown(address) {
+  const key = String(address || "").toLowerCase();
+  const now = Math.floor(Date.now() / 1000);
+  const last = mintCooldownByAddress.get(key) || 0;
+  const remaining = (last + MINT_COOLDOWN_SECONDS) - now;
+  return { remaining: Math.max(0, remaining), now, last, key };
+}
+
 const { ATTESTOR_PRIVATE_KEY, PORT } = process.env;
 if (!ATTESTOR_PRIVATE_KEY) {
   throw new Error("Missing ATTESTOR_PRIVATE_KEY in .env");
@@ -72,6 +83,14 @@ app.post("/mint", mintLimiter, async (req, res) => {
     const { to, amount } = req.body || {};
     if (!to || !ethers.isAddress(to)) {
       return res.status(400).json({ ok: false, error: "invalid_to" });
+    }
+    const cd = isCoolingDown(to);
+    if (cd.remaining > 0) {
+      return res.status(429).json({
+        ok: false,
+        error: "mint_cooldown",
+        retryAfterSeconds: cd.remaining,
+      });
     }
 
     const human = String(amount ?? "1000");
@@ -124,6 +143,7 @@ app.post("/mint", mintLimiter, async (req, res) => {
 
     const tx = await c.mint(to, amt);
     await tx.wait();
+    mintCooldownByAddress.set(String(to).toLowerCase(), Math.floor(Date.now() / 1000));
 
     res.json({ ok: true, txHash: tx.hash, to, amount: human, usdc });
   } catch (e) {
