@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 800px at 20% 10%, rgba(34, 158, 255, 0.18), transparent 55%),
+              radial-gradient(900px 600px at 90% 20%, rgba(34, 158, 255, 0.10), transparent 55%),
+              #06070a;
+  color: rgba(255,255,255,0.92);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
