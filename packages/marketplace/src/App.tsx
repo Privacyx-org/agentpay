@@ -156,8 +156,12 @@ export default function App() {
   async function connectAgent() {
     setError("");
     try {
-      if (isLocal) return await connectHardhatAccount(2);
-      return await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+      if (isLocal) {
+        await connectHardhatAccount(2);
+      } else {
+        await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+      }
+      await refreshUsdcBalance();
     } catch (e: any) {
       console.error(e);
       setError(e?.shortMessage || e?.message || String(e));
@@ -435,6 +439,8 @@ export default function App() {
       setNeedsUsdc(human < MIN_USDC_REQUIRED);
       if (human < MIN_USDC_REQUIRED) {
         setStatus("ℹ️ Low test USDC balance. You can request test tokens to continue.");
+      } else if (status?.includes("Low test USDC")) {
+        setStatus("");
       }
     } catch (e: any) {
       console.warn("refreshUsdcBalance failed:", e?.message || e);
