@@ -9,13 +9,20 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
-const limiter = rateLimit({
+const globalLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 5,
+  max: 60,
   standardHeaders: true,
   legacyHeaders: false,
 });
-app.use(limiter);
+app.use(globalLimiter);
+
+const mintLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 3,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const { ATTESTOR_PRIVATE_KEY, PORT } = process.env;
 if (!ATTESTOR_PRIVATE_KEY) {
@@ -55,7 +62,7 @@ app.get("/config", async (req, res) => {
   });
 });
 
-app.post("/mint", async (req, res) => {
+app.post("/mint", mintLimiter, async (req, res) => {
   try {
     const apiKey = req.header("x-api-key");
     if (!process.env.MINT_API_KEY || apiKey !== process.env.MINT_API_KEY) {

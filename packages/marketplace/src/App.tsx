@@ -26,6 +26,11 @@ function toHttpUri(uri: string) {
   return /^https?:\/\//i.test(uri) ? uri : null;
 }
 
+function isAlreadyKnownError(e: unknown) {
+  const msg = String((e as any)?.message || e || "").toLowerCase();
+  return msg.includes("already known");
+}
+
 async function getLogsChunked(
   provider: ethers.Provider,
   params: {
@@ -213,6 +218,10 @@ export default function App() {
       await sdk.registerAgent(metadataURI, payout as any);
       await loadAgents();
     } catch (e: any) {
+      if (isAlreadyKnownError(e)) {
+        setStatus("⏳ Transaction already submitted (already known). Check MetaMask / explorer.");
+        return;
+      }
       console.error(e);
       setError(e?.shortMessage || e?.message || String(e));
       setStatus("❌ Failed to register");
@@ -384,6 +393,10 @@ export default function App() {
 
       setStatus(`✅ Minted ${amount} mUSDC (tx: ${data.txHash?.slice(0, 10)}...)`);
     } catch (e: any) {
+      if (isAlreadyKnownError(e)) {
+        setStatus("⏳ Transaction already submitted (already known). Check MetaMask / explorer.");
+        return;
+      }
       setError(String(e?.message || e));
     }
   }
