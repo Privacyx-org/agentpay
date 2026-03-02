@@ -73,6 +73,15 @@ app.post("/mint", async (req, res) => {
     const provider = new ethers.JsonRpcProvider(rpc);
     const minter = new ethers.Wallet(pk, provider);
     const net = await provider.getNetwork();
+    const EXPECTED_CHAIN_ID = Number(process.env.CHAIN_ID || "84532");
+    if (Number(net.chainId) !== EXPECTED_CHAIN_ID) {
+      return res.status(500).json({
+        ok: false,
+        error: "wrong_chain_for_mint",
+        expectedChainId: EXPECTED_CHAIN_ID,
+        rpcChainId: Number(net.chainId),
+      });
+    }
     const code = await provider.getCode(usdc);
 
     if (code === "0x") {
