@@ -72,6 +72,18 @@ app.post("/mint", async (req, res) => {
 
     const provider = new ethers.JsonRpcProvider(rpc);
     const minter = new ethers.Wallet(pk, provider);
+    const net = await provider.getNetwork();
+    const code = await provider.getCode(usdc);
+
+    if (code === "0x") {
+      return res.status(500).json({
+        ok: false,
+        error: "usdc_has_no_code_on_rpc",
+        rpcChainId: Number(net.chainId),
+        usdc,
+        codeLength: code.length,
+      });
+    }
 
     const abi = [
       "function mint(address to, uint256 amount) external",
@@ -79,7 +91,9 @@ app.post("/mint", async (req, res) => {
     ];
 
     const c = new ethers.Contract(usdc, abi, minter);
-    const dec = await c.decimals();
+    // debug: raw eth_call decimals()
+    const raw = await provider.call({ to: usdc, data: "0x313ce567" });
+    const dec = Number(raw);
     const amt = ethers.parseUnits(human, dec);
 
     const tx = await c.mint(to, amt);
