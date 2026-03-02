@@ -71,6 +71,11 @@ export default function App() {
   const [taskHistory, setTaskHistory] = useState<any[]>([]);
   const [taskFilter, setTaskFilter] = useState<"all" | "client" | "agent">("all");
   const [agentMetaByAddress, setAgentMetaByAddress] = useState<Record<string, any>>({});
+  const [usdcBalance, setUsdcBalance] = useState<string>("0");
+  const [usdcDecimals, setUsdcDecimals] = useState<number>(6);
+  const [needsUsdc, setNeedsUsdc] = useState<boolean>(false);
+
+  const MIN_USDC_REQUIRED = 5;
 
   const provider = useMemo(() => new ethers.JsonRpcProvider(CONFIG.rpcUrl, CONFIG.chainId), []);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
@@ -135,8 +140,12 @@ export default function App() {
   async function connectClient() {
     setError("");
     try {
-      if (isLocal) return await connectHardhatAccount(1);
-      return await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+      if (isLocal) {
+        await connectHardhatAccount(1);
+      } else {
+        await connectMetaMask((s) => setSigner(s), (a) => setAccount(a));
+      }
+      await refreshUsdcBalance();
     } catch (e: any) {
       console.error(e);
       setError(e?.shortMessage || e?.message || String(e));
@@ -365,6 +374,7 @@ export default function App() {
 
       setTaskId(finalId.toString());
       setStatus(`Task funded: ${finalId.toString()}`);
+      await refreshUsdcBalance();
       await loadTaskHistory();
     } catch (e: any) {
       console.error(e);
@@ -392,12 +402,42 @@ export default function App() {
       if (!r.ok || !data.ok) throw new Error(data.error || "mint_failed");
 
       setStatus(`✅ Minted ${amount} mUSDC (tx: ${data.txHash?.slice(0, 10)}...)`);
+      await refreshUsdcBalance();
     } catch (e: any) {
       if (isAlreadyKnownError(e)) {
         setStatus("⏳ Transaction already submitted (already known). Check MetaMask / explorer.");
         return;
       }
       setError(String(e?.message || e));
+    }
+  }
+
+  async function refreshUsdcBalance() {
+    try {
+      if (!provider || !account) return;
+
+      const erc20 = new ethers.Contract(
+        (CONFIG as any).usdcAddress || CONFIG.usdc,
+        [
+          "function balanceOf(address) view returns (uint256)",
+          "function decimals() view returns (uint8)",
+        ],
+        provider
+      );
+
+      const dec: number = await erc20.decimals();
+      const bal: bigint = await erc20.balanceOf(account);
+
+      setUsdcDecimals(dec);
+
+      const human = Number(ethers.formatUnits(bal, dec));
+      setUsdcBalance(human.toFixed(4));
+      setNeedsUsdc(human < MIN_USDC_REQUIRED);
+      if (human < MIN_USDC_REQUIRED) {
+        setStatus("ℹ️ Low test USDC balance. You can request test tokens to continue.");
+      }
+    } catch (e: any) {
+      console.warn("refreshUsdcBalance failed:", e?.message || e);
     }
   }
 
@@ -441,6 +481,11 @@ export default function App() {
     loadTaskHistory();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    refreshUsdcBalance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account]);
 
   const filteredTaskHistory = useMemo(() => {
     if (taskFilter === "all") return taskHistory;
@@ -541,9 +586,22 @@ export default function App() {
               <input value={amount} onChange={(e) => setAmount(e.target.value)} style={{ width: "100%" }} />
             </label>
 
-            <button disabled={!account || busy} onClick={() => mintDemo("1000")}>
-              Mint 1000 mUSDC (demo)
-            </button>
+            <div style={{ marginTop: 8, opacity: 0.9 }}>
+              <div>USDC balance: {usdcBalance} (decimals: {usdcDecimals})</div>
+              {needsUsdc && (
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ marginBottom: 6 }}>
+                    You don&apos;t have enough test USDC to create/fund a task.
+                  </div>
+                  <button
+                    onClick={() => mintDemo("1000")}
+                    disabled={!account || busy}
+                  >
+                    Receive test tokens
+                  </button>
+                </div>
+              )}
+            </div>
             <button onClick={createAndFund} disabled={!account || !taskAgent || busy}>Create + Fund</button>
 
             <div style={{ marginTop: 6 }}>
