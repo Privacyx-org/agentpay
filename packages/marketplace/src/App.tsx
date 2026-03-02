@@ -366,6 +366,28 @@ export default function App() {
     }
   }
 
+  async function mintDemo(amount = "1000") {
+    try {
+      setError("");
+      if (!account) throw new Error("Connect wallet first");
+
+      const r = await fetch("/api/mint", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ to: account, amount }),
+      });
+
+      const data = await r
+        .json()
+        .catch(async () => ({ ok: false, error: await r.text() }));
+      if (!r.ok || !data.ok) throw new Error(data.error || "mint_failed");
+
+      setStatus(`✅ Minted ${amount} mUSDC (tx: ${data.txHash?.slice(0, 10)}...)`);
+    } catch (e: any) {
+      setError(String(e?.message || e));
+    }
+  }
+
   async function releaseViaAttestation() {
     setError("");
     if (busy) return;
@@ -506,6 +528,9 @@ export default function App() {
               <input value={amount} onChange={(e) => setAmount(e.target.value)} style={{ width: "100%" }} />
             </label>
 
+            <button disabled={!account || busy} onClick={() => mintDemo("1000")}>
+              Mint 1000 mUSDC (demo)
+            </button>
             <button onClick={createAndFund} disabled={!account || !taskAgent || busy}>Create + Fund</button>
 
             <div style={{ marginTop: 6 }}>
