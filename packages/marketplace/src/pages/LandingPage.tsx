@@ -174,7 +174,7 @@ export default function LandingPage() {
                   {[
                     { k: "Network", v: "Base Sepolia" },
                     { k: "Mode", v: "Testnet" },
-                    { k: "Focus", v: "Agent commerce" },
+                    { k: "Focus", v: "Settlement" },
                   ].map((it) => (
                     <div
                       key={it.k}
