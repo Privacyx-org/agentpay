@@ -753,13 +753,13 @@ export default function App() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="lg:col-span-2">
+            <Card className={agents.length > 0 || agentsLoading ? "lg:col-span-2" : ""}>
               <CardHeader>
                 <CardTitle>Agents marketplace</CardTitle>
                 <CardDescription>Discover agents, inspect profiles, and prefill tasks.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto_auto]">
+                <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto]">
                   <input
                     className="h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white outline-none"
                     value={metadataURI}
@@ -772,10 +772,10 @@ export default function App() {
                     onChange={(e) => setPayout(e.target.value)}
                     placeholder="Payout address"
                   />
-                  <Button variant="secondary" onClick={registerAgent} disabled={busy || !isConnected}>
+                  <Button variant="secondary" onClick={registerAgent} disabled={busy || !isConnected} className="w-full lg:w-auto">
                     Register agent
                   </Button>
-                  <Button variant="ghost" onClick={loadAgents} disabled={agentsLoading}>
+                  <Button variant="ghost" onClick={loadAgents} disabled={agentsLoading} className="w-full lg:w-auto">
                     Refresh
                   </Button>
                 </div>

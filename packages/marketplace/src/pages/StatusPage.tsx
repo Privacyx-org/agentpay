@@ -201,14 +201,14 @@ export default function StatusPage() {
   return (
     <div className="min-h-screen bg-[#06070b]">
       <div className="sticky top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img src="/brand/logo_RALIENT_complet_720.png" alt="Railent" className="h-7 w-auto opacity-95 md:h-8" />
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="secondary" size="sm" onClick={checkAll} disabled={loading}>
               <RefreshCw size={16} className={loading ? "animate-spin" : ""} />
-              Refresh
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
             <Button size="sm" onClick={() => (window.location.href = "/app")}>
               Launch app <ArrowRight size={16} />
@@ -225,7 +225,7 @@ export default function StatusPage() {
               <Badge className="bg-white/5 text-white/70">Status</Badge>
               <Pill tone="neutral" label={`Testnet • ${chainName}`} />
             </div>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight">Status</h1>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Status</h1>
             <p className="mt-2 max-w-2xl text-white/65">
               Live health checks for Railent services on testnet. No secrets are exposed.
             </p>
@@ -262,7 +262,7 @@ export default function StatusPage() {
                 <div className="font-semibold text-white/80">Config (safe)</div>
                 <div className="mt-2 grid gap-1">
                   <div>chainId: {apiConfig?.chainId ?? "—"}</div>
-                  <div>usdc: {apiConfig?.usdc ?? "—"}</div>
+                  <div className="break-all">usdc: {apiConfig?.usdc ?? "—"}</div>
                   <div>rpcConfigured: {String(apiConfig?.rpcConfigured ?? false)}</div>
                   <div>attestorConfigured: {String(apiConfig?.attestorConfigured ?? false)}</div>
                 </div>
@@ -329,8 +329,8 @@ export default function StatusPage() {
                       <div className="font-medium">{c.name}</div>
                       <Pill tone={ok ? "ok" : "warn"} label={ok ? "code: yes" : "code: ?"} />
                     </div>
-                    <div className="mt-2 flex items-center justify-between gap-2">
-                      <div className="min-w-0 truncate font-mono text-xs text-white/75">{c.addr}</div>
+                    <div className="mt-2 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="min-w-0 break-all font-mono text-xs text-white/75">{c.addr}</div>
                       <a
                         className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
                         href={addrUrl(CONFIG.chainId, c.addr) || "#"}

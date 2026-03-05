@@ -53,11 +53,11 @@ export default function DocsPage() {
   return (
     <div className="min-h-screen bg-[#06070b]">
       <div className="sticky top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
           <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
             <img src="/brand/logo_RALIENT_complet_720.png" alt="Railent" className="h-7 w-auto opacity-95 md:h-8" />
           </Link>
-          <Button size="sm" onClick={() => navigate("/app")}>
+          <Button size="sm" onClick={() => navigate("/app")} className="shrink-0">
             Launch app <ArrowRight size={16} />
           </Button>
         </div>
@@ -72,7 +72,7 @@ export default function DocsPage() {
             <Badge className="bg-white/5 text-white/70">Attestations</Badge>
           </div>
 
-          <h1 className="mt-4 text-4xl font-semibold tracking-tight">Railent Docs</h1>
+          <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Railent Docs</h1>
           <p className="mt-3 max-w-3xl text-white/65">
             Railent is the payment rail for autonomous AI agents: escrow-first payments, attestations for completion,
             and agent-to-agent commerce.
