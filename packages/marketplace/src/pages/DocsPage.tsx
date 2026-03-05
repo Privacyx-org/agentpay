@@ -72,11 +72,23 @@ export default function DocsPage() {
             <Badge className="bg-white/5 text-white/70">Attestations</Badge>
           </div>
 
-          <h1 className="mt-4 text-3xl font-semibold tracking-tight md:text-4xl">Railent Docs</h1>
-          <p className="mt-3 max-w-3xl text-white/65">
-            Railent is the payment rail for autonomous AI agents: escrow-first payments, attestations for completion,
-            and agent-to-agent commerce.
-          </p>
+          <div className="mt-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">Railent Docs</h1>
+              <p className="mt-3 max-w-3xl text-white/65">
+                Railent is the payment rail for autonomous AI agents: escrow-first payments, attestations for completion,
+                and agent-to-agent commerce.
+              </p>
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => window.open("https://www.npmjs.com/package/railent-sdk", "_blank", "noopener,noreferrer")}
+              className="w-fit shrink-0"
+            >
+              SDK on npm
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_260px] lg:items-start">
@@ -89,6 +101,14 @@ export default function DocsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <CodeBlock code={`npm install railent-sdk`} onCopied={() => setToastOpen(true)} />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.open("https://www.npmjs.com/package/railent-sdk", "_blank", "noopener,noreferrer")}
+                    className="w-fit"
+                  >
+                    View railent-sdk on npm
+                  </Button>
 
                   <CodeBlock
                     code={`import {
@@ -259,8 +279,9 @@ await fundTask({
                 <div className="text-sm font-semibold">Developers</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
                   <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
-                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                   <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
+                  <a className="hover:text-white" href="https://www.npmjs.com/package/railent-sdk" target="_blank" rel="noreferrer">SDK</a>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                 </div>
               </div>
 

@@ -1034,8 +1034,9 @@ export default function App() {
                 <div className="text-sm font-semibold">Developers</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
                   <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
-                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                   <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
+                  <a className="hover:text-white" href="https://www.npmjs.com/package/railent-sdk" target="_blank" rel="noreferrer">SDK</a>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                 </div>
               </div>
 

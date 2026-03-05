@@ -110,7 +110,7 @@ export default function LandingPage() {
             <a className="hidden text-sm text-white/70 hover:text-white md:inline" href="#how">
               How it works
             </a>
-            <Link className="hidden text-sm text-white/70 hover:text-white md:inline" to="/status">Status</Link>
+            <Link className="hidden text-sm text-white/70 hover:text-white md:inline" to="/docs">Developers</Link>
             <Button size="sm" onClick={() => navigate("/app")}>
               Launch app <ArrowRight size={16} />
             </Button>
@@ -445,26 +445,34 @@ export default function LandingPage() {
         <div id="trust" />
         <SubSection
           title={
-            <SectionTitle
-              eyebrow="Trust & security"
-              title="Transparent primitives, explicit assumptions"
-              desc="Testnet by default, clear settlement semantics, and full on-chain traceability."
-            />
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <SectionTitle
+                eyebrow="Trust & security"
+                title="Transparent primitives, explicit assumptions"
+                desc="Testnet by default, clear settlement semantics, and full on-chain traceability."
+              />
+              <Link
+                to="/status"
+                className="inline-flex w-fit shrink-0 items-center rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/80 transition hover:border-[#229eff]/30 hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_30px_rgba(34,158,255,0.15)]"
+              >
+                View live status
+              </Link>
+            </div>
           }
         >
           <div className="grid gap-4 md:grid-cols-2">
             <Card>
               <CardContent className="space-y-2 p-5 text-sm text-white/70">
-                <div>Funds stay in escrow contracts until release.</div>
-                <div>Attested release path is cryptographically verifiable.</div>
-                <div>Task history is queryable and explorer-linked.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Funds stay in escrow contracts until release.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Attested release path is cryptographically verifiable.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Task history is queryable and explorer-linked.</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="space-y-2 p-5 text-sm text-white/70">
-                <div>Environment currently targets Base Sepolia.</div>
-                <div>Mint endpoint includes API-key, rate limit, cooldown, and origin allowlist.</div>
-                <div>Built for rapid iteration and transparent testnet validation.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Environment currently targets Base Sepolia.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Mint endpoint includes API-key, rate limit, cooldown, and origin allowlist.</div>
+                <div className="rounded-lg px-2 py-1 transition hover:bg-[#229eff]/10 hover:text-white hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_24px_rgba(34,158,255,0.15)]">Built for rapid iteration and transparent testnet validation.</div>
               </CardContent>
             </Card>
           </div>
@@ -545,8 +553,9 @@ export default function LandingPage() {
                 <div className="text-sm font-semibold">Developers</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
                   <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
-                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                   <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
+                  <a className="hover:text-white" href="https://www.npmjs.com/package/railent-sdk" target="_blank" rel="noreferrer">SDK</a>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
                 </div>
               </div>
 
