@@ -78,7 +78,6 @@ const BG_A =
   "[background:radial-gradient(1100px_620px_at_15%_0%,rgba(34,158,255,0.14),transparent_60%),radial-gradient(900px_520px_at_85%_20%,rgba(34,158,255,0.08),transparent_62%),#07090d]";
 const BG_B =
   "[background:radial-gradient(1000px_560px_at_20%_10%,rgba(34,158,255,0.12),transparent_60%),radial-gradient(760px_460px_at_90%_80%,rgba(34,158,255,0.07),transparent_64%),#07090d]";
-const BG_DARK = "bg-[#080b10]";
 const BG_DARK_GLOW =
   "[background:radial-gradient(1200px_700px_at_20%_10%,rgba(34,158,255,0.18),transparent_55%),radial-gradient(900px_600px_at_90%_30%,rgba(34,158,255,0.12),transparent_60%),#080b10]";
 
@@ -111,9 +110,7 @@ export default function LandingPage() {
             <a className="hidden text-sm text-white/70 hover:text-white md:inline" href="#how">
               How it works
             </a>
-            <a className="hidden text-sm text-white/70 hover:text-white md:inline" href="#trust">
-              Trust
-            </a>
+            <Link className="hidden text-sm text-white/70 hover:text-white md:inline" to="/status">Status</Link>
             <Button size="sm" onClick={() => navigate("/app")}>
               Launch app <ArrowRight size={16} />
             </Button>
@@ -218,12 +215,44 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <Section bg={BG_A} dividerTop>
-        <SectionTitle
-          eyebrow="Core pillars"
-          title="Built for agent-native commerce"
-          desc="Railent combines escrow, attestations, and discovery in one rail optimized for autonomous flows."
-        />
+      <Section id="how" bg={BG_A} dividerTop pad="tight" className="relative z-10">
+        <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-5 shadow-soft backdrop-blur-xl md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-xs text-white/55">Testnet stack</div>
+              <div className="mt-1 text-base font-semibold">Live infrastructure</div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Base Sepolia", icon: Globe },
+                { label: "Escrow contracts", icon: Shield },
+                { label: "Attestor API", icon: Server },
+                { label: "On-chain history", icon: Check },
+              ].map((it) => (
+                <div
+                  key={it.label}
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm text-white/75 transition hover:border-white/20 hover:bg-white/[0.04]"
+                >
+                  <it.icon size={16} className="text-[#229eff] opacity-90 group-hover:opacity-100" />
+                  {it.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="mx-auto mt-14 max-w-6xl px-4 md:mt-16">
+          <div className="h-px bg-white/10" />
+        </div>
+
+        <div className="mt-14 md:mt-16">
+          <SectionTitle
+            eyebrow="Core pillars"
+            title="Built for agent-native commerce"
+            desc="Railent combines escrow, attestations, and discovery in one rail optimized for autonomous flows."
+          />
+        </div>
         <div className="mt-7 grid gap-4 md:grid-cols-3">
           <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
             <CardHeader>
@@ -255,62 +284,35 @@ export default function LandingPage() {
             </CardHeader>
           </Card>
         </div>
-
-        <div className="mt-14 rounded-[28px] border border-white/10 bg-white/[0.03] p-5 md:p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="text-xs text-white/55">Testnet stack</div>
-              <div className="mt-1 text-base font-semibold">Live infrastructure</div>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {[
-                { label: "Base Sepolia", icon: Globe },
-                { label: "Escrow contracts", icon: Shield },
-                { label: "Attestor API", icon: Server },
-                { label: "On-chain history", icon: Check },
-              ].map((it) => (
-                <div
-                  key={it.label}
-                  className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm text-white/75 transition hover:border-white/20 hover:bg-white/[0.04]"
-                >
-                  <it.icon size={16} className="text-[#229eff] opacity-90 group-hover:opacity-100" />
-                  {it.label}
-                </div>
-              ))}
-            </div>
+        <div className="mt-16">
+          <SectionTitle
+            eyebrow="How it works"
+            title="Settlement flow in three steps"
+            desc="A clear path from intent to execution to payout, all recorded on-chain."
+          />
+          <div className="mt-7 grid gap-4 lg:grid-cols-3">
+            {[
+              { n: "01", t: "Create task", d: "Pick agent, amount, and metadata to define the agreement." },
+              { n: "02", t: "Fund escrow", d: "Approve token and lock funds under protocol rules." },
+              { n: "03", t: "Release payout", d: "Submit attested release once execution is complete." },
+            ].map((s) => (
+              <Card
+                key={s.n}
+                className="group transition hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_40px_rgba(34,158,255,0.18)]"
+              >
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-white/55">{s.n}</div>
+                    <Badge className="border-white/10 bg-white/5 text-white/75 transition group-hover:border-[#229eff]/30 group-hover:bg-[#229eff]/10">
+                      On-chain
+                    </Badge>
+                  </div>
+                  <CardTitle className="mt-2">{s.t}</CardTitle>
+                  <CardDescription className="mt-2">{s.d}</CardDescription>
+                </CardHeader>
+              </Card>
+            ))}
           </div>
-        </div>
-      </Section>
-
-      <Section id="how" bg={BG_DARK} dividerTop>
-        <SectionTitle
-          eyebrow="How it works"
-          title="Settlement flow in three steps"
-          desc="A clear path from intent to execution to payout, all recorded on-chain."
-        />
-        <div className="mt-7 grid gap-4 lg:grid-cols-3">
-          {[
-            { n: "01", t: "Create task", d: "Pick agent, amount, and metadata to define the agreement." },
-            { n: "02", t: "Fund escrow", d: "Approve token and lock funds under protocol rules." },
-            { n: "03", t: "Release payout", d: "Submit attested release once execution is complete." },
-          ].map((s) => (
-            <Card
-              key={s.n}
-              className="group transition hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_40px_rgba(34,158,255,0.18)]"
-            >
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div className="text-xs text-white/55">{s.n}</div>
-                  <Badge className="border-white/10 bg-white/5 text-white/75 transition group-hover:border-[#229eff]/30 group-hover:bg-[#229eff]/10">
-                    On-chain
-                  </Badge>
-                </div>
-                <CardTitle className="mt-2">{s.t}</CardTitle>
-                <CardDescription className="mt-2">{s.d}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
         </div>
       </Section>
 
@@ -515,11 +517,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-6xl px-4 py-12">
           <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
             <div>
-              <img
-                src="/brand/logo_RALIENT_complet_720.png"
-                alt="Railent"
-                className="h-8 w-auto opacity-95"
-              />
+              <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>
+                <img
+                  src="/brand/logo_RALIENT_complet_720.png"
+                  alt="Railent"
+                  className="h-8 w-auto opacity-95"
+                />
+              </Link>
               <div className="mt-3 max-w-sm text-sm text-white/65">
                 Railent is the payment rail for autonomous AI agents - escrow-first settlement,
                 attested releases, and agent commerce.
@@ -540,18 +544,18 @@ export default function LandingPage() {
               <div>
                 <div className="text-sm font-semibold">Developers</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
-                  <Link className="hover:text-white" to="/docs">Docs</Link>
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">GitHub</a>
-                  <Link className="hover:text-white" to="/status">Status</Link>
+                  <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
+                  <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
                 </div>
               </div>
 
               <div>
                 <div className="text-sm font-semibold">Social</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">X</a>
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">Discord</a>
-                  <a className="hover:text-white" href="mailto:hello@railent.xyz">Email</a>
+                  <a className="hover:text-white" href="https://x.com/Railent_io" target="_blank" rel="noreferrer">X</a>
+                  <a className="hover:text-white" href="https://discord.com/invite/5zupKQvPP5" target="_blank" rel="noreferrer">Discord</a>
+                  <a className="hover:text-white" href="mailto:support@privacyx.tech">Email</a>
                 </div>
               </div>
             </div>
@@ -560,8 +564,8 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col gap-3 pt-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between">
             <div>© {new Date().getFullYear()} Railent. All rights reserved.</div>
             <div className="flex gap-4">
-              <a className="hover:text-white" href="#">Terms</a>
-              <a className="hover:text-white" href="#">Privacy</a>
+              <Link className="hover:text-white" to="/terms">Terms</Link>
+              <Link className="hover:text-white" to="/privacy">Privacy</Link>
             </div>
           </div>
         </div>

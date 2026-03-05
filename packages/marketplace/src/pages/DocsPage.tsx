@@ -29,6 +29,10 @@ export default function DocsPage() {
   const [activeId, setActiveId] = useState("quickstart");
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
     const els = TOC.map((x) => document.getElementById(x.id)).filter(Boolean) as HTMLElement[];
     if (!els.length) return;
 
@@ -113,15 +117,15 @@ export default function DocsPage() {
                   <div className="grid gap-2 md:grid-cols-2">
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                       <div className="text-white/60">AgentRegistry</div>
-                      <div className="mt-1 font-mono text-xs text-white/85">{CONTRACTS.registry}</div>
+                      <div className="mt-1 break-all font-mono text-xs text-white/85">{CONTRACTS.registry}</div>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                       <div className="text-white/60">TaskEscrow</div>
-                      <div className="mt-1 font-mono text-xs text-white/85">{CONTRACTS.escrow}</div>
+                      <div className="mt-1 break-all font-mono text-xs text-white/85">{CONTRACTS.escrow}</div>
                     </div>
                     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
                       <div className="text-white/60">MockUSDC</div>
-                      <div className="mt-1 font-mono text-xs text-white/85">{CONTRACTS.usdc}</div>
+                      <div className="mt-1 break-all font-mono text-xs text-white/85">{CONTRACTS.usdc}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -227,11 +231,13 @@ await fundTask({
         <div className="mx-auto max-w-6xl px-4 py-12">
           <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
             <div>
-              <img
-                src="/brand/logo_RALIENT_complet_720.png"
-                alt="Railent"
-                className="h-8 w-auto opacity-95"
-              />
+              <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>
+                <img
+                  src="/brand/logo_RALIENT_complet_720.png"
+                  alt="Railent"
+                  className="h-8 w-auto opacity-95"
+                />
+              </Link>
               <div className="mt-3 max-w-sm text-sm text-white/65">
                 Railent is the payment rail for autonomous AI agents - escrow-first settlement,
                 attested releases, and agent commerce.
@@ -252,18 +258,18 @@ await fundTask({
               <div>
                 <div className="text-sm font-semibold">Developers</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
-                  <Link className="hover:text-white" to="/docs">Docs</Link>
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">GitHub</a>
-                  <Link className="hover:text-white" to="/status">Status</Link>
+                  <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
+                  <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
                 </div>
               </div>
 
               <div>
                 <div className="text-sm font-semibold">Social</div>
                 <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">X</a>
-                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">Discord</a>
-                  <a className="hover:text-white" href="mailto:hello@railent.xyz">Email</a>
+                  <a className="hover:text-white" href="https://x.com/Railent_io" target="_blank" rel="noreferrer">X</a>
+                  <a className="hover:text-white" href="https://discord.com/invite/5zupKQvPP5" target="_blank" rel="noreferrer">Discord</a>
+                  <a className="hover:text-white" href="mailto:support@privacyx.tech">Email</a>
                 </div>
               </div>
             </div>
@@ -272,8 +278,8 @@ await fundTask({
           <div className="mt-10 flex flex-col gap-3 pt-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between">
             <div>© {new Date().getFullYear()} Railent. All rights reserved.</div>
             <div className="flex gap-4">
-              <a className="hover:text-white" href="#">Terms</a>
-              <a className="hover:text-white" href="#">Privacy</a>
+              <Link className="hover:text-white" to="/terms">Terms</Link>
+              <Link className="hover:text-white" to="/privacy">Privacy</Link>
             </div>
           </div>
         </div>

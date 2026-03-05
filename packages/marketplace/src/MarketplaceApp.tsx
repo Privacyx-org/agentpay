@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { ethers, NonceManager } from "ethers";
 import { AgentPayClient } from "railent-sdk";
+import { Link } from "react-router-dom";
+import { Menu, Sparkles, X } from "lucide-react";
 import { CONFIG } from "./config";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./components/ui/card";
 import { Button } from "./components/ui/button";
@@ -68,6 +70,7 @@ export default function App() {
   const [historyFilter, setHistoryFilter] = useState<"all" | "client" | "agent">("all");
   const [historyLookback, setHistoryLookback] = useState(5000);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const provider = useMemo(() => new ethers.JsonRpcProvider(CONFIG.rpcUrl, CONFIG.chainId), []);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
@@ -592,159 +595,205 @@ export default function App() {
   }, [historyFilter, historyItems, activeAddress]);
 
   return (
-    <div className="min-h-screen">
-      <div className="sticky top-0 z-20 border-b border-white/10 bg-black/30 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl border border-railent/30 bg-railent/20" />
-            <div>
-              <div className="text-sm font-semibold tracking-tight">Railent</div>
-              <div className="text-xs text-white/60">Payment rails for AI agents</div>
+    <div className="min-h-screen bg-[#06070b]">
+      <div className="sticky top-0 z-30 border-b border-white/10 bg-black/30 backdrop-blur-xl">
+        <div className="mx-auto max-w-6xl px-4 py-3">
+          <div className="flex w-full items-center justify-between gap-3">
+            <div className="flex items-center">
+              <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>
+                <img
+                  src="/brand/logo_RALIENT_complet_720.png"
+                  alt="Railent"
+                  className="h-7 w-auto opacity-95 md:h-8"
+                />
+              </Link>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen((v) => !v)}
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/80 md:hidden"
+              aria-label={mobileNavOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileNavOpen}
+            >
+              {mobileNavOpen ? <X size={16} /> : <Menu size={16} />}
+            </button>
+
+            <div className="hidden items-center gap-2 md:flex md:flex-wrap md:justify-end">
+              <Pill label={isRightChain ? "Base Sepolia" : "Wrong network"} tone={isRightChain ? "ok" : "warn"} />
+              <Pill
+                label={isConnected ? `${shortAddr(activeAddress)} connected` : "Not connected"}
+                tone={isConnected ? "ok" : "neutral"}
+              />
+              {isConnected && <CopyButton value={activeAddress!} />}
+
+              {!isConnected ? (
+                <div className="flex items-center gap-2">
+                  <Button variant="secondary" size="sm" onClick={connectClient}>
+                    Connect as client
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={connectAgent}>
+                    Connect as agent
+                  </Button>
+                </div>
+              ) : null}
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Pill label={isRightChain ? "Base Sepolia" : "Wrong network"} tone={isRightChain ? "ok" : "warn"} />
-            <Pill
-              label={isConnected ? `${shortAddr(activeAddress)} connected` : "Not connected"}
-              tone={isConnected ? "ok" : "neutral"}
-            />
-            {isConnected && <CopyButton value={activeAddress!} />}
-
-            {!isConnected ? (
-              <div className="flex items-center gap-2">
-                <Button variant="secondary" size="sm" onClick={connectClient}>
-                  Connect as client
-                </Button>
-                <Button variant="ghost" size="sm" onClick={connectAgent}>
-                  Connect as agent
-                </Button>
+          {mobileNavOpen ? (
+            <div className="mt-2 grid gap-2 border-t border-white/10 pt-2 md:hidden">
+              <div className="flex flex-wrap items-center gap-2">
+                <Pill label={isRightChain ? "Base Sepolia" : "Wrong network"} tone={isRightChain ? "ok" : "warn"} />
+                <Pill
+                  label={isConnected ? `${shortAddr(activeAddress)} connected` : "Not connected"}
+                  tone={isConnected ? "ok" : "neutral"}
+                />
+                {isConnected && <CopyButton value={activeAddress!} />}
               </div>
-            ) : null}
+
+              {!isConnected ? (
+                <div className="grid grid-cols-1 gap-2">
+                  <Button variant="secondary" size="sm" onClick={connectClient} className="w-full">
+                    Connect as client
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={connectAgent} className="w-full">
+                    Connect as agent
+                  </Button>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(1200px_760px_at_18%_8%,rgba(34,158,255,0.24),transparent_56%),radial-gradient(980px_620px_at_88%_26%,rgba(34,158,255,0.16),transparent_62%),#06070b]" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/25" />
+        <div className="relative mx-auto max-w-6xl px-4 py-10">
+          <div className="mb-8 grid gap-6 md:grid-cols-2 md:items-center">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                <Sparkles size={14} className="text-white/60" />
+                Testnet-ready • Escrow • Attestations • Marketplace
+              </div>
+              <h1 className="mt-4 text-4xl font-semibold tracking-tight">
+                The first payment rail built for autonomous agents.
+              </h1>
+              <p className="mt-3 text-white/65">
+                Create tasks, lock funds in escrow, release payouts with attestations and discover agents in the marketplace.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Button>New task</Button>
+                <Button variant="secondary">Register agent</Button>
+                <Button variant="ghost">View history</Button>
+              </div>
+            </div>
+
+            <Card className="md:w-[420px] md:justify-self-end">
+              <CardHeader>
+                <CardTitle>Onboarding checks</CardTitle>
+                <CardDescription>Everything needed to run the flow safely on testnet.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-white/70">Wallet</span>
+                  <Badge className={isConnected ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200" : ""}>
+                    {isConnected ? "Connected" : "Not connected"}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-white/70">Network</span>
+                  <Badge
+                    className={
+                      isRightChain
+                        ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
+                        : "border-amber-500/25 bg-amber-500/10 text-amber-200"
+                    }
+                  >
+                    {isRightChain ? `Base Sepolia (${CONFIG.chainId})` : `Wrong (${chainId ?? "—"})`}
+                  </Badge>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-white/70">USDC balance</span>
+                  <Badge
+                    className={
+                      hasEnoughUsdc
+                        ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
+                        : "border-amber-500/25 bg-amber-500/10 text-amber-200"
+                    }
+                  >
+                    {isConnected ? `${usdc.toFixed(2)} mUSDC` : "—"}
+                  </Badge>
+                </div>
+
+                {isConnected && isRightChain && !hasEnoughUsdc ? (
+                  <div className="pt-3">
+                    <Button variant="secondary" className="w-full" onClick={onMintTestTokens} disabled={busy}>
+                      Receive test tokens
+                    </Button>
+                    <p className="mt-2 text-xs text-white/55">
+                      You need at least 5 mUSDC to create and fund a task.
+                    </p>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-8 grid gap-6 md:grid-cols-2 md:items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-              Testnet-ready • Escrow • Attestations • Marketplace
-            </div>
-            <h1 className="mt-4 text-4xl font-semibold tracking-tight">
-              The first payment rail built for autonomous agents.
-            </h1>
-            <p className="mt-3 text-white/65">
-              Create tasks, lock funds in escrow, release payouts with attestations and discover agents in the marketplace.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button>New task</Button>
-              <Button variant="secondary">Register agent</Button>
-              <Button variant="ghost">View history</Button>
-            </div>
+      <div className="bg-[#06070b]">
+        <div className="relative mx-auto max-w-6xl px-4 pb-10">
+          <div className="mb-4 grid gap-3">
+            {status ? <Callout title={status} tone="info" /> : null}
+            {error ? <Callout title="Action failed" tone="bad">{error}</Callout> : null}
+            {released ? <Callout title="Flow completed" tone="ok">Task released with attestation.</Callout> : null}
           </div>
 
-          <Card className="md:w-[420px] md:justify-self-end">
-            <CardHeader>
-              <CardTitle>Onboarding checks</CardTitle>
-              <CardDescription>Everything needed to run the flow safely on testnet.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-white/70">Wallet</span>
-                <Badge className={isConnected ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200" : ""}>
-                  {isConnected ? "Connected" : "Not connected"}
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-white/70">Network</span>
-                <Badge
-                  className={
-                    isRightChain
-                      ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
-                      : "border-amber-500/25 bg-amber-500/10 text-amber-200"
-                  }
-                >
-                  {isRightChain ? `Base Sepolia (${CONFIG.chainId})` : `Wrong (${chainId ?? "—"})`}
-                </Badge>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-white/70">USDC balance</span>
-                <Badge
-                  className={
-                    hasEnoughUsdc
-                      ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-200"
-                      : "border-amber-500/25 bg-amber-500/10 text-amber-200"
-                  }
-                >
-                  {isConnected ? `${usdc.toFixed(2)} mUSDC` : "—"}
-                </Badge>
-              </div>
-
-              {isConnected && isRightChain && !hasEnoughUsdc ? (
-                <div className="pt-3">
-                  <Button variant="secondary" className="w-full" onClick={onMintTestTokens} disabled={busy}>
-                    Receive test tokens
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle>Agents marketplace</CardTitle>
+                <CardDescription>Discover agents, inspect profiles, and prefill tasks.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto_auto]">
+                  <input
+                    className="h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white outline-none"
+                    value={metadataURI}
+                    onChange={(e) => setMetadataURI(e.target.value)}
+                    placeholder="Agent metadata URI (http(s) recommended)"
+                  />
+                  <input
+                    className="h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white outline-none"
+                    value={payout}
+                    onChange={(e) => setPayout(e.target.value)}
+                    placeholder="Payout address"
+                  />
+                  <Button variant="secondary" onClick={registerAgent} disabled={busy || !isConnected}>
+                    Register agent
                   </Button>
-                  <p className="mt-2 text-xs text-white/55">
-                    You need at least 5 mUSDC to create and fund a task.
-                  </p>
+                  <Button variant="ghost" onClick={loadAgents} disabled={agentsLoading}>
+                    Refresh
+                  </Button>
                 </div>
-              ) : null}
-            </CardContent>
-          </Card>
-        </div>
 
-        <div className="mb-4 grid gap-3">
-          {status ? <Callout title={status} tone="info" /> : null}
-          {error ? <Callout title="Action failed" tone="bad">{error}</Callout> : null}
-          {released ? <Callout title="Flow completed" tone="ok">Task released with attestation.</Callout> : null}
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Agents marketplace</CardTitle>
-              <CardDescription>Discover agents, inspect profiles, and prefill tasks.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="mb-4 grid gap-3 md:grid-cols-[1fr_1fr_auto_auto]">
-                <input
-                  className="h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white outline-none"
-                  value={metadataURI}
-                  onChange={(e) => setMetadataURI(e.target.value)}
-                  placeholder="Agent metadata URI (http(s) recommended)"
-                />
-                <input
-                  className="h-11 rounded-xl border border-white/10 bg-white/5 px-3 text-sm text-white outline-none"
-                  value={payout}
-                  onChange={(e) => setPayout(e.target.value)}
-                  placeholder="Payout address"
-                />
-                <Button variant="secondary" onClick={registerAgent} disabled={busy || !isConnected}>
-                  Register agent
-                </Button>
-                <Button variant="ghost" onClick={loadAgents} disabled={agentsLoading}>
-                  Refresh
-                </Button>
-              </div>
-
-              {agentsLoading ? (
+                {agentsLoading ? (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   <Skeleton className="h-48" />
                   <Skeleton className="h-48" />
                   <Skeleton className="h-48" />
                 </div>
-              ) : agents.length === 0 ? (
+                ) : agents.length === 0 ? (
                 <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
                   <div className="text-sm font-medium text-white">No agents yet</div>
                   <p className="mt-1 text-sm text-white/60">
                     Register an agent to appear in the marketplace and start receiving tasks.
                   </p>
                 </div>
-              ) : (
+                ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {agents.map((a) => (
                     <AgentCard
@@ -757,9 +806,9 @@ export default function App() {
                     />
                   ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
 
           <Card>
             <CardHeader>
@@ -891,6 +940,7 @@ export default function App() {
               )}
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
 
@@ -906,6 +956,7 @@ export default function App() {
               <ExternalLink
                 href={addrUrl(chainId ?? undefined, selectedAgent.address)}
                 label={selectedAgent.address}
+                className="min-w-0 break-all"
               />
               <CopyButton value={selectedAgent.address} />
             </div>
@@ -950,6 +1001,64 @@ export default function App() {
           </div>
         )}
       </Modal>
+
+      <footer className="relative z-10 border-t border-white/10 bg-[#06070b]">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+            <div>
+              <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>
+                <img
+                  src="/brand/logo_RALIENT_complet_720.png"
+                  alt="Railent"
+                  className="h-8 w-auto opacity-95"
+                />
+              </Link>
+              <div className="mt-3 max-w-sm text-sm text-white/65">
+                Railent is the payment rail for autonomous AI agents - escrow-first settlement,
+                attested releases, and agent commerce.
+              </div>
+              <div className="mt-4 text-xs text-white/45">Testnet environment • Base Sepolia</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+              <div>
+                <div className="text-sm font-semibold">Product</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="/app">Launch app</a>
+                  <a className="hover:text-white" href="/#how">How it works</a>
+                  <a className="hover:text-white" href="/#trust">Trust model</a>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Developers</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
+                  <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Social</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="https://x.com/Railent_io" target="_blank" rel="noreferrer">X</a>
+                  <a className="hover:text-white" href="https://discord.com/invite/5zupKQvPP5" target="_blank" rel="noreferrer">Discord</a>
+                  <a className="hover:text-white" href="mailto:support@privacyx.tech">Email</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-3 pt-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between">
+            <div>© {new Date().getFullYear()} Railent. All rights reserved.</div>
+            <div className="flex gap-4">
+              <Link className="hover:text-white" to="/terms">Terms</Link>
+              <Link className="hover:text-white" to="/privacy">Privacy</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

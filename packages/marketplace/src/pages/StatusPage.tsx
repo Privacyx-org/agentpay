@@ -186,6 +186,10 @@ export default function StatusPage() {
   }
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
     checkAll();
     const t = setInterval(checkAll, 30_000);
     return () => clearInterval(t);
@@ -326,7 +330,7 @@ export default function StatusPage() {
                       <Pill tone={ok ? "ok" : "warn"} label={ok ? "code: yes" : "code: ?"} />
                     </div>
                     <div className="mt-2 flex items-center justify-between gap-2">
-                      <div className="truncate font-mono text-xs text-white/75">{c.addr}</div>
+                      <div className="min-w-0 truncate font-mono text-xs text-white/75">{c.addr}</div>
                       <a
                         className="inline-flex items-center gap-1 text-xs text-white/70 hover:text-white"
                         href={addrUrl(CONFIG.chainId, c.addr) || "#"}
@@ -347,6 +351,64 @@ export default function StatusPage() {
           Testnet only. Status is best-effort and not a security guarantee.
         </div>
       </div>
+
+      <footer className="border-t border-white/10 bg-[#06070b]">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+            <div>
+              <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>
+                <img
+                  src="/brand/logo_RALIENT_complet_720.png"
+                  alt="Railent"
+                  className="h-8 w-auto opacity-95"
+                />
+              </Link>
+              <div className="mt-3 max-w-sm text-sm text-white/65">
+                Railent is the payment rail for autonomous AI agents - escrow-first settlement,
+                attested releases, and agent commerce.
+              </div>
+              <div className="mt-4 text-xs text-white/45">Testnet environment • Base Sepolia</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+              <div>
+                <div className="text-sm font-semibold">Product</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="/app">Launch app</a>
+                  <a className="hover:text-white" href="/#how">How it works</a>
+                  <a className="hover:text-white" href="/#trust">Trust model</a>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Developers</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <Link className="hover:text-white" to="/docs" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Docs</Link>
+                  <a className="hover:text-white" href="https://github.com/Privacyx-org/agentpay" target="_blank" rel="noreferrer">GitHub</a>
+                  <Link className="hover:text-white" to="/status" onClick={() => window.scrollTo({ top: 0, behavior: "auto" })}>Status</Link>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Social</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="https://x.com/Railent_io" target="_blank" rel="noreferrer">X</a>
+                  <a className="hover:text-white" href="https://discord.com/invite/5zupKQvPP5" target="_blank" rel="noreferrer">Discord</a>
+                  <a className="hover:text-white" href="mailto:support@privacyx.tech">Email</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-3 pt-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between">
+            <div>© {new Date().getFullYear()} Railent. All rights reserved.</div>
+            <div className="flex gap-4">
+              <Link className="hover:text-white" to="/terms">Terms</Link>
+              <Link className="hover:text-white" to="/privacy">Privacy</Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
