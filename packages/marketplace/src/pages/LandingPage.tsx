@@ -1,142 +1,13 @@
-import React, { Suspense, useMemo, useRef } from "react";
-import * as THREE from "three";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, OrbitControls, Environment, Html } from "@react-three/drei";
-import { motion } from "framer-motion";
-import { ArrowRight, Shield, Zap, Globe, Check, Sparkles } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { Suspense, lazy } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, Shield, Check, Globe, Code2, Server, Lock, Sparkles } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
 import { Badge } from "../components/ui/badge";
 import ParallaxGlow from "../components/ParallaxGlow";
 
-const RAILENT_BLUE = "#229eff";
-
-function RailCore() {
-  const group = useRef<any>(null);
-
-  const points = useMemo(() => {
-    const pts: [number, number, number][] = [];
-    for (let i = 0; i < 220; i++) {
-      const t = i / 219;
-      const x = (t - 0.5) * 8.0;
-      const y = Math.sin(t * Math.PI * 2) * 0.25;
-      const z = Math.cos(t * Math.PI * 3) * 0.35;
-      pts.push([x, y, z]);
-    }
-    return pts;
-  }, []);
-
-  const curve = useMemo(
-    () => new (THREE as any).CatmullRomCurve3(points.map((p) => new (THREE as any).Vector3(...p))),
-    [points]
-  );
-
-  useFrame((state) => {
-    const g = group.current;
-    if (!g) return;
-    const t = state.clock.getElapsedTime();
-    g.rotation.y = Math.sin(t * 0.22) * 0.12;
-    g.rotation.x = Math.sin(t * 0.18) * 0.06;
-  });
-
-  return (
-    <group ref={group}>
-      <mesh>
-        <tubeGeometry args={[curve as any, 600, 0.08, 10, false]} />
-        <meshStandardMaterial color={RAILENT_BLUE} emissive={RAILENT_BLUE} emissiveIntensity={1.0} roughness={0.35} metalness={0.35} />
-      </mesh>
-
-      <mesh>
-        <tubeGeometry args={[curve as any, 600, 0.03, 10, false]} />
-        <meshStandardMaterial color="#ffffff" emissive={RAILENT_BLUE} emissiveIntensity={1.4} roughness={0.2} metalness={0.2} />
-      </mesh>
-
-      {Array.from({ length: 18 }).map((_, i) => (
-        <Float key={i} speed={1.2} rotationIntensity={0.6} floatIntensity={0.7}>
-          <mesh position={[-3.8 + i * 0.45, Math.sin(i) * 0.25, Math.cos(i) * 0.25]}>
-            <sphereGeometry args={[0.09, 24, 24]} />
-            <meshStandardMaterial color={RAILENT_BLUE} emissive={RAILENT_BLUE} emissiveIntensity={1.2} roughness={0.25} metalness={0.35} />
-          </mesh>
-        </Float>
-      ))}
-    </group>
-  );
-}
-
-function Particles() {
-  const ref = useRef<any>(null);
-
-  const { positions } = useMemo(() => {
-    const count = 1000;
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      const r = Math.random() * 6.0;
-      const a = Math.random() * Math.PI * 2;
-      const y = (Math.random() - 0.5) * 2.2;
-      pos[i * 3 + 0] = Math.cos(a) * r;
-      pos[i * 3 + 1] = y;
-      pos[i * 3 + 2] = Math.sin(a) * r * 0.65;
-    }
-    return { positions: pos };
-  }, []);
-
-  useFrame((state) => {
-    const p = ref.current;
-    if (!p) return;
-    const t = state.clock.getElapsedTime();
-    p.rotation.y = t * 0.03;
-    p.rotation.x = Math.sin(t * 0.12) * 0.03;
-  });
-
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-      </bufferGeometry>
-      <pointsMaterial size={0.02} color={RAILENT_BLUE} transparent opacity={0.65} />
-    </points>
-  );
-}
-
-function Scene3D() {
-  return (
-    <Canvas dpr={[1, 2]} camera={{ position: [0, 0.4, 6.2], fov: 42 }} gl={{ antialias: true, alpha: true }}>
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[4, 5, 3]} intensity={1.1} />
-      <Suspense
-        fallback={
-          <Html center>
-            <div className="text-sm text-white/70">Loading Railent...</div>
-          </Html>
-        }
-      >
-        <Environment preset="city" />
-        <Particles />
-        <RailCore />
-      </Suspense>
-      <OrbitControls enableZoom={false} enablePan={false} maxPolarAngle={Math.PI / 2} minPolarAngle={Math.PI / 2.6} />
-    </Canvas>
-  );
-}
-
-function Feature({ icon, title, desc }: { icon: React.ReactNode; title: string; desc: string }) {
-  return (
-    <Card className="transition hover:border-white/15">
-      <CardHeader>
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
-            {icon}
-          </div>
-          <div className="min-w-0">
-            <CardTitle className="text-base">{title}</CardTitle>
-            <CardDescription className="mt-1">{desc}</CardDescription>
-          </div>
-        </div>
-      </CardHeader>
-    </Card>
-  );
-}
+const Scene3D = lazy(() => import("../components/Scene3D"));
 
 function Pill({ children }: { children: React.ReactNode }) {
   return (
@@ -147,28 +18,93 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
+function SectionTitle({ eyebrow, title, desc }: { eyebrow: string; title: string; desc: string }) {
+  return (
+    <div>
+      <div className="text-xs text-white/55">{eyebrow}</div>
+      <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">{title}</h2>
+      <p className="mt-3 max-w-2xl text-white/65">{desc}</p>
+    </div>
+  );
+}
+
+function SubSection({
+  title,
+  children,
+}: {
+  title: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="mt-12">
+      {title}
+      <div className="mt-7">{children}</div>
+    </div>
+  );
+}
+
+function Section({
+  id,
+  children,
+  className = "",
+  pad = "normal",
+  bg,
+  dividerTop = false,
+}: {
+  id?: string;
+  children: React.ReactNode;
+  className?: string;
+  pad?: "normal" | "tight";
+  bg?: string;
+  dividerTop?: boolean;
+}) {
+  const padding = pad === "tight" ? "py-14 md:py-16" : "py-20 md:py-24";
+  return (
+    <section
+      id={id}
+      className={[
+        "relative bg-no-repeat",
+        bg ? bg : "",
+        dividerTop ? "border-t border-white/10" : "",
+        className,
+      ].join(" ")}
+    >
+      <div className={["mx-auto max-w-6xl px-4", padding].join(" ")}>{children}</div>
+    </section>
+  );
+}
+
+const BG_A =
+  "[background:radial-gradient(1100px_620px_at_15%_0%,rgba(34,158,255,0.14),transparent_60%),radial-gradient(900px_520px_at_85%_20%,rgba(34,158,255,0.08),transparent_62%),#07090d]";
+const BG_B =
+  "[background:radial-gradient(1000px_560px_at_20%_10%,rgba(34,158,255,0.12),transparent_60%),radial-gradient(760px_460px_at_90%_80%,rgba(34,158,255,0.07),transparent_64%),#07090d]";
+const BG_DARK = "bg-[#080b10]";
+const BG_DARK_GLOW =
+  "[background:radial-gradient(1200px_700px_at_20%_10%,rgba(34,158,255,0.18),transparent_55%),radial-gradient(900px_600px_at_90%_30%,rgba(34,158,255,0.12),transparent_60%),#080b10]";
+
 export default function LandingPage() {
   const navigate = useNavigate();
+  const reduce = useReducedMotion();
+
+  const baseAnim = reduce
+    ? {}
+    : {
+        initial: { opacity: 0, y: 10 },
+        animate: { opacity: 1, y: 0 },
+      };
 
   return (
-    <div className="min-h-screen">
+    <div id="landing-top" className="min-h-screen">
       <div className="sticky top-0 z-30 border-b border-white/10 bg-black/30 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 overflow-hidden rounded-xl border border-white/10 bg-white/5">
-              <div
-                className="absolute inset-0 opacity-70"
-                style={{
-                  background:
-                    `radial-gradient(120px 80px at 30% 30%, ${RAILENT_BLUE}55, transparent 60%),` +
-                    `radial-gradient(120px 80px at 70% 70%, ${RAILENT_BLUE}33, transparent 60%)`,
-                }}
+            <Link to="/" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+              <img
+                src="/brand/logo_RALIENT_complet_720.png"
+                alt="Railent"
+                className="h-7 w-auto opacity-95 md:h-8"
               />
-            </div>
-            <div>
-              <div className="text-sm font-semibold tracking-tight">Railent</div>
-              <div className="text-xs text-white/60">Payment rails for AI agents</div>
-            </div>
+            </Link>
           </div>
 
           <div className="flex items-center gap-2">
@@ -185,77 +121,96 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="relative">
-        <ParallaxGlow accent="#229eff" strength={0.28} />
-        <div className="mx-auto max-w-6xl px-4 pb-12 pt-10">
-          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div>
-              <Pill>Live on Base Sepolia • Escrow • Attestations • Marketplace</Pill>
+      {/* HERO */}
+      <div className="relative min-h-[calc(100vh-57px)] overflow-hidden md:min-h-[calc(100vh-61px)]">
+        <div className="absolute inset-0">
+          <Suspense fallback={null}>
+            <Scene3D />
+          </Suspense>
+        </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45 }}
-                className="mt-5 text-4xl font-semibold tracking-tight md:text-5xl"
-              >
-                The payment rail built for autonomous AI agents.
-              </motion.h1>
+        <div className="absolute inset-0 bg-[radial-gradient(1200px_700px_at_20%_10%,rgba(34,158,255,0.18),transparent_55%),radial-gradient(900px_600px_at_90%_30%,rgba(34,158,255,0.12),transparent_60%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/30 to-black/80" />
+        <div className="absolute inset-0 [mask-image:radial-gradient(800px_500px_at_50%_35%,black,transparent)] bg-black/35" />
 
-              <motion.p
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.06 }}
-                className="mt-4 text-base text-white/65 md:text-lg"
-              >
-                Escrow-first settlement, attested releases, and agent-to-agent commerce designed for
-                agents that act, coordinate, and pay autonomously.
-              </motion.p>
+        <ParallaxGlow accent="#229eff" strength={0.22} />
 
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: 0.12 }}
-                className="mt-7 flex flex-wrap gap-3"
-              >
-                <Button onClick={() => navigate("/app")}>
-                  Launch testnet app <ArrowRight size={16} />
-                </Button>
-                <Button variant="secondary" onClick={() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })}>
-                  See how it works
-                </Button>
-                <Button variant="ghost" onClick={() => document.getElementById("trust")?.scrollIntoView({ behavior: "smooth" })}>
-                  Trust model
-                </Button>
-              </motion.div>
+        <div className="relative mx-auto flex w-full max-w-6xl items-center px-4 py-16 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-12 lg:items-center">
+            <div className="lg:col-span-6">
+              <div className="rounded-[28px] border border-white/10 bg-black/35 p-6 shadow-soft backdrop-blur-xl md:p-8">
+                <Pill>Live on Base Sepolia • Escrow • Attestations • Marketplace</Pill>
 
-              <div className="mt-7 flex flex-wrap gap-2">
-                <Badge className="border-white/10 bg-white/5 text-white/75">Escrow contracts</Badge>
-                <Badge className="border-white/10 bg-white/5 text-white/75">Attestor API</Badge>
-                <Badge className="border-white/10 bg-white/5 text-white/75">On-chain history</Badge>
-                <Badge className="border-white/10 bg-white/5 text-white/75">Agent registry</Badge>
+                <motion.h1
+                  {...baseAnim}
+                  transition={{ duration: 0.55 }}
+                  className="mt-5 text-4xl font-semibold tracking-tight md:text-6xl"
+                >
+                  Payments for autonomous AI agents.
+                </motion.h1>
+
+                <motion.p
+                  {...baseAnim}
+                  transition={{ duration: 0.55, delay: 0.06 }}
+                  className="mt-4 max-w-xl text-base text-white/70 md:text-lg"
+                >
+                  Escrow-first settlement and attested releases, designed for agent-to-agent commerce and programmable payouts.
+                </motion.p>
+
+                <motion.div
+                  {...baseAnim}
+                  transition={{ duration: 0.55, delay: 0.12 }}
+                  className="mt-7 flex flex-wrap items-center gap-3"
+                >
+                  <Button onClick={() => navigate("/app")}>
+                    Launch testnet app <ArrowRight size={16} />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => document.getElementById("how")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    See how it works
+                  </Button>
+                </motion.div>
+
+                <div className="mt-6 grid grid-cols-3 gap-3">
+                  {[
+                    { k: "Network", v: "Base Sepolia" },
+                    { k: "Mode", v: "Testnet" },
+                    { k: "Focus", v: "Agent commerce" },
+                  ].map((it) => (
+                    <div
+                      key={it.k}
+                      className="rounded-2xl border border-white/10 bg-white/[0.04] p-3 transition hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_40px_rgba(34,158,255,0.18)]"
+                    >
+                      <div className="text-xs text-white/55">{it.k}</div>
+                      <div className="mt-1 text-sm text-white/85">{it.v}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="relative">
-              <div
-                className="absolute -inset-4 rounded-[28px] opacity-60 blur-2xl"
-                style={{
-                  background:
-                    `radial-gradient(700px 300px at 30% 20%, ${RAILENT_BLUE}40, transparent 60%),` +
-                    `radial-gradient(700px 300px at 80% 70%, ${RAILENT_BLUE}22, transparent 60%)`,
-                }}
-              />
-              <div className="relative h-[360px] overflow-hidden rounded-[28px] border border-white/10 bg-white/[0.02] md:h-[420px]">
-                <div className="absolute inset-0">
-                  <Scene3D />
+            <div className="lg:col-span-6 lg:justify-self-end">
+              <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-soft backdrop-blur-xl">
+                <div className="text-sm font-semibold">What Railent unlocks</div>
+                <div className="mt-3 grid gap-3 text-sm text-white/70">
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-[#229eff]" />
+                    <div>Task-to-payout settlement without invoicing.</div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-[#229eff]" />
+                    <div>Attested releases that turn outcomes into payouts.</div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="mt-1 h-2 w-2 rounded-full bg-[#229eff]" />
+                    <div>Discovery and pricing via agent registry profiles.</div>
+                  </div>
                 </div>
-                <div className="absolute left-4 top-4">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-3 py-1 text-xs text-white/70 backdrop-blur">
-                    <Zap size={14} /> Settlement rail (3D)
-                  </span>
-                </div>
-                <div className="absolute bottom-4 right-4 rounded-2xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/70 backdrop-blur">
-                  Drag slightly to orbit
+
+                <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4 text-xs text-white/65">
+                  Testnet environment. Explore the complete flow in minutes.
                 </div>
               </div>
             </div>
@@ -263,32 +218,93 @@ export default function LandingPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-4 pb-6">
-        <div className="grid gap-4 md:grid-cols-3">
-          <Feature icon={<Shield size={18} style={{ color: RAILENT_BLUE }} />} title="Escrow-first" desc="Funds lock on-chain until completion. No invoices, no middlemen." />
-          <Feature icon={<Check size={18} style={{ color: RAILENT_BLUE }} />} title="Attestation-ready" desc="Release payouts with signed proofs and verifiable execution primitives." />
-          <Feature icon={<Globe size={18} style={{ color: RAILENT_BLUE }} />} title="Marketplace-native" desc="Discover agents, pricing, and capabilities agent-to-agent commerce." />
-        </div>
-      </div>
+      <Section bg={BG_A} dividerTop>
+        <SectionTitle
+          eyebrow="Core pillars"
+          title="Built for agent-native commerce"
+          desc="Railent combines escrow, attestations, and discovery in one rail optimized for autonomous flows."
+        />
+        <div className="mt-7 grid gap-4 md:grid-cols-3">
+          <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Shield size={18} className="text-[#229eff]" />
+                <CardTitle className="text-base">Escrow-first</CardTitle>
+              </div>
+              <CardDescription>Funds lock on-chain until valid release conditions are met.</CardDescription>
+            </CardHeader>
+          </Card>
 
-      <div id="how" className="mx-auto max-w-6xl px-4 py-12">
-        <div>
-          <div className="text-xs text-white/55">How it works</div>
-          <h2 className="mt-2 text-2xl font-semibold tracking-tight md:text-3xl">
-            Settlement that agents can actually use.
-          </h2>
+          <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Check size={18} className="text-[#229eff]" />
+                <CardTitle className="text-base">Attestation-ready</CardTitle>
+              </div>
+              <CardDescription>Signed proofs turn execution outcomes into programmable payouts.</CardDescription>
+            </CardHeader>
+          </Card>
+
+          <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Globe size={18} className="text-[#229eff]" />
+                <CardTitle className="text-base">Marketplace-native</CardTitle>
+              </div>
+              <CardDescription>Agent registry and profiles make discovery and coordination frictionless.</CardDescription>
+            </CardHeader>
+          </Card>
         </div>
+
+        <div className="mt-14 rounded-[28px] border border-white/10 bg-white/[0.03] p-5 md:p-6">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <div className="text-xs text-white/55">Testnet stack</div>
+              <div className="mt-1 text-base font-semibold">Live infrastructure</div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: "Base Sepolia", icon: Globe },
+                { label: "Escrow contracts", icon: Shield },
+                { label: "Attestor API", icon: Server },
+                { label: "On-chain history", icon: Check },
+              ].map((it) => (
+                <div
+                  key={it.label}
+                  className="group inline-flex items-center gap-2 rounded-full border border-white/10 bg-black/25 px-4 py-2 text-sm text-white/75 transition hover:border-white/20 hover:bg-white/[0.04]"
+                >
+                  <it.icon size={16} className="text-[#229eff] opacity-90 group-hover:opacity-100" />
+                  {it.label}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section id="how" bg={BG_DARK} dividerTop>
+        <SectionTitle
+          eyebrow="How it works"
+          title="Settlement flow in three steps"
+          desc="A clear path from intent to execution to payout, all recorded on-chain."
+        />
         <div className="mt-7 grid gap-4 lg:grid-cols-3">
           {[
-            { n: "01", t: "Create a task", d: "Pick an agent, set amount and metadata." },
-            { n: "02", t: "Fund escrow", d: "Approve tokens and lock funds in the protocol." },
-            { n: "03", t: "Release with attestation", d: "Release payout with a signed proof." },
+            { n: "01", t: "Create task", d: "Pick agent, amount, and metadata to define the agreement." },
+            { n: "02", t: "Fund escrow", d: "Approve token and lock funds under protocol rules." },
+            { n: "03", t: "Release payout", d: "Submit attested release once execution is complete." },
           ].map((s) => (
-            <Card key={s.n} className="transition hover:border-white/15">
+            <Card
+              key={s.n}
+              className="group transition hover:-translate-y-0.5 hover:border-white/15 hover:shadow-[0_0_0_1px_rgba(34,158,255,0.20),0_0_40px_rgba(34,158,255,0.18)]"
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="text-xs text-white/55">{s.n}</div>
-                  <Badge className="border-white/10 bg-white/5 text-white/75">On-chain</Badge>
+                  <Badge className="border-white/10 bg-white/5 text-white/75 transition group-hover:border-[#229eff]/30 group-hover:bg-[#229eff]/10">
+                    On-chain
+                  </Badge>
                 </div>
                 <CardTitle className="mt-2">{s.t}</CardTitle>
                 <CardDescription className="mt-2">{s.d}</CardDescription>
@@ -296,38 +312,260 @@ export default function LandingPage() {
             </Card>
           ))}
         </div>
-      </div>
+      </Section>
 
-      <div className="relative">
-        <ParallaxGlow accent="#229eff" strength={0.18} className="opacity-70" />
-        <div id="trust" className="mx-auto max-w-6xl px-4 pb-12">
-          <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-            <Card>
+      <Section bg={BG_B} dividerTop>
+        <SectionTitle
+          eyebrow="Product"
+          title="Interface built for operational clarity"
+          desc="From onboarding checks to history and agent profiles, every critical signal stays visible."
+        />
+        <div className="mt-7 grid gap-4 md:grid-cols-3">
+          <Card className="overflow-hidden transition hover:border-white/15">
+            <CardContent className="p-0">
+              <div className="p-5">
+                <div className="text-sm font-semibold">Create & Fund</div>
+                <div className="mt-1 text-sm text-white/60">Define a task and lock funds in escrow.</div>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-xs text-white/55">Agent</div>
+                    <div className="mt-1 h-3 w-2/3 rounded bg-white/10" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                      <div className="text-xs text-white/55">Amount</div>
+                      <div className="mt-1 h-3 w-1/2 rounded bg-white/10" />
+                    </div>
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                      <div className="text-xs text-white/55">Token</div>
+                      <div className="mt-1 h-3 w-1/3 rounded bg-white/10" />
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                    <div className="inline-flex items-center gap-2 text-xs text-white/70">
+                      <span className="h-2 w-2 rounded-full bg-[#229eff]" />
+                      Approve → Fund escrow
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-white/10 bg-black/25 p-4 text-xs text-white/60">
+                Onboarding checks prevent wrong network and low balance errors.
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden transition hover:border-white/15">
+            <CardContent className="p-0">
+              <div className="p-5">
+                <div className="text-sm font-semibold">Release (Attested)</div>
+                <div className="mt-1 text-sm text-white/60">Release payout using a signed proof.</div>
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-xs text-white/55">Task ID</div>
+                    <div className="mt-1 h-3 w-1/3 rounded bg-white/10" />
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                    <div className="text-xs text-white/55">Result hash</div>
+                    <div className="mt-1 h-3 w-2/3 rounded bg-white/10" />
+                  </div>
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-3">
+                    <div className="inline-flex items-center gap-2 text-xs text-white/70">
+                      <span className="h-2 w-2 rounded-full bg-[#229eff]" />
+                      Attestation signature → Release
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-white/10 bg-black/25 p-4 text-xs text-white/60">
+                Cryptographically verifiable release path.
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="overflow-hidden transition hover:border-white/15">
+            <CardContent className="p-0">
+              <div className="p-5">
+                <div className="text-sm font-semibold">On-chain history</div>
+                <div className="mt-1 text-sm text-white/60">Queryable events and explorer links.</div>
+                <div className="mt-4 space-y-2">
+                  {["Funded", "Released", "Refunded"].map((s, i) => (
+                    <div key={s} className="flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                      <div className="text-xs text-white/70">Task #{120 + i}</div>
+                      <div className="text-xs text-white/60">
+                        <span className="rounded-full border border-white/10 bg-black/25 px-2 py-0.5">{s}</span>
+                      </div>
+                    </div>
+                  ))}
+                  <div className="rounded-2xl border border-white/10 bg-black/25 p-3 text-xs text-white/60">
+                    Load more lookback and chunked logs for provider limits.
+                  </div>
+                </div>
+              </div>
+              <div className="border-t border-white/10 bg-black/25 p-4 text-xs text-white/60">
+                Copy buttons and BaseScan links.
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <SubSection
+          title={
+            <SectionTitle
+              eyebrow="Developers"
+              title="Composable by design"
+              desc="Use the SDK, contracts, and attestor API to plug Railent into any agent runtime."
+            />
+          }
+        >
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
               <CardHeader>
-                <CardTitle>Trust model</CardTitle>
-                <CardDescription>Clear primitives with no magic.</CardDescription>
+                <div className="flex items-center gap-2"><Code2 size={16} className="text-[#229eff]" /><CardTitle className="text-base">SDK</CardTitle></div>
+                <CardDescription>Typed client for task lifecycle and attestation requests.</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-3 text-sm text-white/70">
-                <div>Funds are held by escrow smart contracts until release.</div>
-                <div>Client can release manually or via signed attestation.</div>
-                <div>All actions are on-chain and visible in history and explorer.</div>
+            </Card>
+            <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
+              <CardHeader>
+                <div className="flex items-center gap-2"><Server size={16} className="text-[#229eff]" /><CardTitle className="text-base">API</CardTitle></div>
+                <CardDescription>Attestor and controlled test token mint endpoints for testnet UX.</CardDescription>
+              </CardHeader>
+            </Card>
+            <Card className="transition hover:-translate-y-0.5 hover:border-white/15">
+              <CardHeader>
+                <div className="flex items-center gap-2"><Lock size={16} className="text-[#229eff]" /><CardTitle className="text-base">Contracts</CardTitle></div>
+                <CardDescription>Escrow and registry contracts deployed on Base Sepolia.</CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </SubSection>
+
+        <div id="trust" />
+        <SubSection
+          title={
+            <SectionTitle
+              eyebrow="Trust & security"
+              title="Transparent primitives, explicit assumptions"
+              desc="Testnet by default, clear settlement semantics, and full on-chain traceability."
+            />
+          }
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <Card>
+              <CardContent className="space-y-2 p-5 text-sm text-white/70">
+                <div>Funds stay in escrow contracts until release.</div>
+                <div>Attested release path is cryptographically verifiable.</div>
+                <div>Task history is queryable and explorer-linked.</div>
               </CardContent>
             </Card>
-
             <Card>
-              <CardHeader>
-                <CardTitle>Start on testnet</CardTitle>
-                <CardDescription>Try the full flow in under a minute.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button onClick={() => navigate("/app")}>
-                  Launch testnet app <ArrowRight size={16} />
-                </Button>
+              <CardContent className="space-y-2 p-5 text-sm text-white/70">
+                <div>Environment currently targets Base Sepolia.</div>
+                <div>Mint endpoint includes API-key, rate limit, cooldown, and origin allowlist.</div>
+                <div>Built for rapid iteration and transparent testnet validation.</div>
               </CardContent>
             </Card>
           </div>
+        </SubSection>
+
+      </Section>
+
+      <Section bg={BG_DARK_GLOW} dividerTop>
+        <SectionTitle
+          eyebrow="FAQ"
+          title="Questions teams ask before integrating"
+          desc="Quick answers for product, engineering, and operations."
+        />
+        <div className="mt-7 grid gap-3">
+          {[
+            ["Is Railent mainnet-ready?", "Not yet. Current environment is testnet-only on Base Sepolia."],
+            ["Can agents settle automatically?", "Yes, with attested releases and programmable task flows."],
+            ["Do you expose an API?", "Yes. Attestor endpoints and controlled mint endpoint for testnet UX."],
+            ["How do I integrate?", "Start with the SDK and marketplace app flow, then wire your agent runtime."],
+          ].map(([q, a]) => (
+            <Card key={q} className="transition hover:border-white/15">
+              <CardContent className="p-5">
+                <div className="text-sm font-medium">{q}</div>
+                <div className="mt-1 text-sm text-white/65">{a}</div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
-      </div>
+
+        <div className="mx-auto mt-12 max-w-6xl px-4">
+          <div className="h-px bg-white/10" />
+        </div>
+
+        <div className="mt-12">
+          <Card>
+            <CardContent className="flex flex-col items-start justify-between gap-4 p-6 md:flex-row md:items-center">
+              <div>
+                <div className="text-xl font-semibold">Ready to ship agent payments on testnet?</div>
+                <div className="mt-1 text-sm text-white/65">Launch the app and run Create, Fund, Release in minutes.</div>
+              </div>
+              <Button onClick={() => navigate("/app")}>
+                Launch app <ArrowRight size={16} />
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Section>
+
+      <footer className="border-t border-white/10 bg-[#06070b]">
+        <div className="mx-auto max-w-6xl px-4 py-12">
+          <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
+            <div>
+              <img
+                src="/brand/logo_RALIENT_complet_720.png"
+                alt="Railent"
+                className="h-8 w-auto opacity-95"
+              />
+              <div className="mt-3 max-w-sm text-sm text-white/65">
+                Railent is the payment rail for autonomous AI agents - escrow-first settlement,
+                attested releases, and agent commerce.
+              </div>
+              <div className="mt-4 text-xs text-white/45">Testnet environment • Base Sepolia</div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+              <div>
+                <div className="text-sm font-semibold">Product</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="/app">Launch app</a>
+                  <a className="hover:text-white" href="#how">How it works</a>
+                  <a className="hover:text-white" href="#trust">Trust model</a>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Developers</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <Link className="hover:text-white" to="/docs">Docs</Link>
+                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">GitHub</a>
+                  <Link className="hover:text-white" to="/status">Status</Link>
+                </div>
+              </div>
+
+              <div>
+                <div className="text-sm font-semibold">Social</div>
+                <div className="mt-3 flex flex-col gap-2 text-sm text-white/70">
+                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">X</a>
+                  <a className="hover:text-white" href="#" target="_blank" rel="noreferrer">Discord</a>
+                  <a className="hover:text-white" href="mailto:hello@railent.xyz">Email</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-col gap-3 pt-6 text-xs text-white/45 md:flex-row md:items-center md:justify-between">
+            <div>© {new Date().getFullYear()} Railent. All rights reserved.</div>
+            <div className="flex gap-4">
+              <a className="hover:text-white" href="#">Terms</a>
+              <a className="hover:text-white" href="#">Privacy</a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

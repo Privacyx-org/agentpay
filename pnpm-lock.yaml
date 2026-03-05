@@ -58,9 +58,6 @@ importers:
 
   packages/marketplace:
     dependencies:
-      '@agentpay/sdk':
-        specifier: workspace:*
-        version: link:../sdk
       '@react-three/drei':
         specifier: ^10.7.7
         version: 10.7.7(@react-three/fiber@9.5.0(@types/react@19.2.14)(immer@10.0.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.183.2))(@types/react@19.2.14)(@types/three@0.183.1)(immer@10.0.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(three@0.183.2)
@@ -82,6 +79,9 @@ importers:
       lucide-react:
         specifier: ^0.576.0
         version: 0.576.0(react@19.2.4)
+      railent-sdk:
+        specifier: workspace:*
+        version: link:../sdk
       react:
         specifier: ^19.2.4
         version: 19.2.4

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:marketplace": "pnpm -w --filter @agentpay/sdk build && pnpm -w --filter marketplace build"
+    "build:marketplace": "pnpm -w --filter railent-sdk build && pnpm -w --filter marketplace build"
   },
   "keywords": [],
   "author": "",

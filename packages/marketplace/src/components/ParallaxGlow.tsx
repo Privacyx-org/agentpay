@@ -13,6 +13,9 @@ export default function ParallaxGlow({
   const raf = useRef<number | null>(null);
 
   useEffect(() => {
+    const reduce = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    if (reduce) return;
+
     const el = ref.current;
     if (!el) return;
 
@@ -53,7 +56,6 @@ export default function ParallaxGlow({
     };
 
     raf.current = requestAnimationFrame(tick);
-
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerleave", onLeave);
 

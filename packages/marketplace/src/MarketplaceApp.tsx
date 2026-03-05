@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { ethers, NonceManager } from "ethers";
-import { AgentPayClient } from "@agentpay/sdk";
+import { AgentPayClient } from "railent-sdk";
 import { CONFIG } from "./config";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "./components/ui/card";
 import { Button } from "./components/ui/button";
