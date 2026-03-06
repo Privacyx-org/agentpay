@@ -126,9 +126,9 @@ export default function LandingPage() {
           </Suspense>
         </div>
 
-        <div className="absolute inset-0 bg-[radial-gradient(1200px_700px_at_20%_10%,rgba(34,158,255,0.18),transparent_55%),radial-gradient(900px_600px_at_90%_30%,rgba(34,158,255,0.12),transparent_60%)]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/30 to-black/80" />
-        <div className="absolute inset-0 [mask-image:radial-gradient(800px_500px_at_50%_35%,black,transparent)] bg-black/35" />
+        <div className="absolute inset-0 bg-[radial-gradient(1400px_820px_at_20%_10%,rgba(34,158,255,0.28),transparent_56%),radial-gradient(1100px_720px_at_90%_28%,rgba(34,158,255,0.2),transparent_60%),radial-gradient(900px_620px_at_50%_72%,rgba(34,158,255,0.1),transparent_64%)]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/24 via-black/18 to-black/52" />
+        <div className="absolute inset-0 [mask-image:radial-gradient(860px_560px_at_50%_35%,black,transparent)] bg-black/20" />
 
         <ParallaxGlow accent="#229eff" strength={0.22} />
 
